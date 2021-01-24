@@ -6,7 +6,6 @@
     {
         word: string,
         part_of_speech: string,
-        definition_found: boolean,
         definitions: string[],
     }
 ]
