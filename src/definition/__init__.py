@@ -12,30 +12,29 @@ from definition.constants import PARTS_OF_SPEECH
 from definition.get_definitions_from_part import main as get_definitions_from_part
 
 
-def _run(source_file_path):
+def _run(word, source_file_path):
     with open(source_file_path, 'r') as f:
-        content = json.loads(f.read())
+        parts = json.loads(f.read())
 
-    result = []
-    for word_object in content:
-        word = word_object["word"]
-        part_of_speech_sections = [
-            section for section in word_object["parts"] if section["name"] in PARTS_OF_SPEECH]
-        if len(part_of_speech_sections) == 0:
-            raise RuntimeError(
-                "No parts of speech found for {w}".format(w=word))
-        for section in part_of_speech_sections:
-            result.append({
-                "word": word,
-                "part_of_speech": section["name"],
-                "definitions": get_definitions_from_part(section),
-            })
+    part_of_speech_sections = [
+        part for part in parts if part["name"] in PARTS_OF_SPEECH
+    ]
 
-    return result
+    if len(part_of_speech_sections) == 0:
+        raise RuntimeError(
+            "No parts of speech found for {w}".format(w=word))
+
+    return [
+        {
+            "part_of_speech": pos["name"],
+            "definitions": get_definitions_from_part(pos),
+        }
+        for pos in part_of_speech_sections
+    ]
 
 
-def main(source_file_path, target_file_path):
-    res = _run(source_file_path)
+def main(word, source_file_path, target_file_path):
+    res = _run(word, source_file_path)
     with open(target_file_path, 'w+') as f:
         f.write(json.dumps(res))
 
